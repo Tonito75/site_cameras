@@ -1,0 +1,35 @@
+services:
+  back:
+    build: ./back
+    image: tonito75/site_cameras_back:latest
+    container_name: cameras_back
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - AllowedOrigins=http://cameras_front
+      - BaseHistoryFolder=/data/history
+    volumes:
+      - ./back/logs:/app/logs
+      - cameras_history:/data/history
+    networks:
+      - cameras_internal
+
+  front:
+    build: ./front
+    image: tonito75/site_cameras_front:latest
+    container_name: cameras_front
+    restart: unless-stopped
+    depends_on:
+      - back
+    networks:
+      - cameras_internal
+      - caddy_net
+
+volumes:
+  cameras_history:
+
+networks:
+  cameras_internal:
+    driver: bridge
+  caddy_net:
+    external: true

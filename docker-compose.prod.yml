@@ -1,0 +1,42 @@
+services:
+  cameras_back:
+    container_name: cameras_back
+    image: tonito75/site_cameras_back:latest
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    volumes:
+      - ${DOCKER_SETTINGS_PATH}/settings/appsettings.site_cameras_back.json:/app/appsettings.Production.json
+      - cameras_back_logs:/app/logs
+      - camera_history:/data/history
+    networks:
+      - cameras_internal
+      - network_main
+
+  cameras_front:
+    container_name: cameras_front
+    image: tonito75/site_cameras_front:latest
+    restart: unless-stopped
+    depends_on:
+      - cameras_back
+    volumes:
+      - ${DOCKER_SETTINGS_PATH}/settings/config.site_cameras_front.json:/usr/share/nginx/html/config.json
+    networks:
+      - cameras_internal
+      - network_main
+
+volumes:
+  cameras_back_logs:
+  camera_history:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "addr=${NAS_ADDR},username=${NAS_USER},password=${NAS_PASSWORD},file_mode=0777,dir_mode=0777"
+      device: "//${NAS_ADDR}/dossier_utile/Camera"
+
+networks:
+  cameras_internal:
+    driver: bridge
+  network_main:
+    external: true

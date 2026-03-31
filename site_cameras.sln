@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "back", "back", "{73F49515-9826-4AB3-83E4-C69FE43BB87A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortalCameras", "back\PortalCameras.csproj", "{02B6CAC8-76B2-4A51-BAB8-8DF17B696703}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "front", "front", "{9D10C571-9CBB-4639-81E3-880DC6490665}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_docker", "_docker", "{47C435CD-A02F-48B7-98FA-6318A865E863}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+		docker-compose.prod.yml = docker-compose.prod.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{02B6CAC8-76B2-4A51-BAB8-8DF17B696703} = {73F49515-9826-4AB3-83E4-C69FE43BB87A}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02B6CAC8-76B2-4A51-BAB8-8DF17B696703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02B6CAC8-76B2-4A51-BAB8-8DF17B696703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02B6CAC8-76B2-4A51-BAB8-8DF17B696703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02B6CAC8-76B2-4A51-BAB8-8DF17B696703}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

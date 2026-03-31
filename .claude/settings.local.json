@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/antoi/Documents/Code/Sites/site_cameras -type f \\\\\\(-name *.env* -o -name *secret* -o -name *credentials* -o -name *config*.json \\\\\\) ! -path */node_modules/* ! -path */.git/* ! -path */bin/* ! -path */obj/*)",
+      "Bash(xargs -0 ls -ltr)",
+      "Bash(grep -r \"password\\\\|secret\\\\|apikey\\\\|api_key\\\\|token\\\\|bearer\\\\|webhook\" /c/Users/antoi/Documents/Code/Sites/site_cameras --include=*.cs --include=*.ts --include=*.tsx --include=*.js --include=*.json --include=*.yml --include=*.yaml -i -n)"
+    ]
+  }
+}

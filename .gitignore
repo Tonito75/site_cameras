@@ -1,0 +1,18 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+# Secrets & config de prod
+.env
+.env.*
+appsettings.Production.json
+appsettings.*.json
+
+# Node
+node_modules/
+front/dist/
+
+# Logs
+back/logs/
