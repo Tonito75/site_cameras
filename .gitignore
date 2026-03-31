@@ -16,3 +16,5 @@ front/dist/
 
 # Logs
 back/logs/
+
+.claude
