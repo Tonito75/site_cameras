@@ -37,8 +37,8 @@ export const api = {
   pingCamera: (name: string) =>
     request<PingResult>(`/api/cameras/${encodeURIComponent(name)}/ping`),
 
-  getCameraHistory: (name: string, useAI: boolean) =>
+  getCameraHistory: (name: string, useAI: boolean, count: number = 10) =>
     request<CameraImage[]>(
-      `/api/cameras/${encodeURIComponent(name)}/history?useAI=${useAI}`
+      `/api/cameras/${encodeURIComponent(name)}/history?useAI=${useAI}&count=${count}`
     ),
 };

@@ -44,10 +44,11 @@ public static class CameraEndpoints
             return Results.Ok(new { name = camera.Name, isOnline });
         }).RequireAuthorization();
 
-        // GET /api/cameras/{name}/history?useAI=false — images récentes
+        // GET /api/cameras/{name}/history?useAI=false&count=10 — images récentes
         app.MapGet("/api/cameras/{name}/history", async (
             string name,
             bool? useAI,
+            int? count,
             IOptions<List<CameraConfig>> cameras,
             IConfiguration config,
             IOService ioService,
@@ -79,7 +80,7 @@ public static class CameraEndpoints
             await discordService.SendAsync($"⚠️ Quelqu'un consulte l'historique de {name}.");
 
             var images = new List<object>();
-            const int maxImages = 10;
+            int maxImages = Math.Clamp(count ?? 10, 1, 100);
             const int maxIterations = 200;
             const int maxApiFails = 5;
 

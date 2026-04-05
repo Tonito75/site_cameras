@@ -4,7 +4,7 @@ import {
   Container, Stack, Avatar, Typography, Paper,
   Button, Divider, Alert
 } from '@mui/material'
-import { Home, GridView, Logout, Construction } from '@mui/icons-material'
+import { Home, GridView, Logout } from '@mui/icons-material'
 import { api } from '../api/client'
 import type { CameraConfig } from '../types/camera'
 import CameraCard from '../components/CameraCard'
@@ -85,10 +85,6 @@ export default function HomePage() {
           }}
         >
           <Stack spacing={3}>
-            <Alert severity="warning" variant="outlined" icon={<Construction fontSize="small" />}>
-              <Typography variant="body2">Site en travaux — certaines fonctionnalités peuvent ne pas fonctionner</Typography>
-            </Alert>
-
             <Typography variant="body2" color="text.secondary" align="center">
               Système de surveillance de renards, pigeons, pies, chats et autres trucs très utiles.
             </Typography>

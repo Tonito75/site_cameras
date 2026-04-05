@@ -2,38 +2,32 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Container, Stack, Avatar, Typography, Paper,
-  Button, CircularProgress, Alert, Switch, Box
+  Button, CircularProgress, Alert, Box
 } from '@mui/material'
 import { History, ArrowBack } from '@mui/icons-material'
 import { api } from '../api/client'
 import type { CameraImage } from '../types/camera'
 
-const MAX_IMAGES = 10
+const MAX_IMAGES = 20
 
 export default function CameraHistoryPage() {
   const { name } = useParams<{ name: string }>()
   const navigate = useNavigate()
   const [images, setImages] = useState<CameraImage[]>([])
   const [loading, setLoading] = useState(true)
-  const [useAI, setUseAI] = useState(false)
 
-  const load = async (ai: boolean) => {
+  const load = async () => {
     setLoading(true)
     setImages([])
     try {
-      const data = await api.getCameraHistory(name!, ai)
+      const data = await api.getCameraHistory(name!, false, 20)
       setImages(data)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { load(false) }, [name])
-
-  const handleAIToggle = (checked: boolean) => {
-    setUseAI(checked)
-    load(checked)
-  }
+  useEffect(() => { load() }, [name])
 
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -50,28 +44,14 @@ export default function CameraHistoryPage() {
           </Typography>
         </Stack>
 
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBack />}
-            size="small"
-            onClick={() => navigate('/')}
-            sx={{ minWidth: 180 }}
-          >
-            Retour
-          </Button>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography variant="caption" color="text.secondary">
-              Détection intelligente (expérimental)
-            </Typography>
-            <Switch
-              size="small"
-              checked={useAI}
-              onChange={e => handleAIToggle(e.target.checked)}
-              color="secondary"
-            />
-          </Stack>
-        </Stack>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          size="small"
+          onClick={() => navigate('/')}
+        >
+          Retour
+        </Button>
 
         <Paper
           elevation={0}
