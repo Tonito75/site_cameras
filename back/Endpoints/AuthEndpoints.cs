@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace PortalCameras.Endpoints;
@@ -28,7 +29,7 @@ public static class AuthEndpoints
             await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
             logger.LogInformation("Login réussi depuis {Ip}", ip);
             return Results.Ok(new { success = true });
-        }).AllowAnonymous();
+        }).AllowAnonymous().RequireRateLimiting("login");
 
         app.MapPost("/api/logout", async (HttpContext ctx, ILogger<Program> logger) =>
         {

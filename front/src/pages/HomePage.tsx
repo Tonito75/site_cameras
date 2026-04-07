@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Container, Stack, Avatar, Typography, Paper,
-  Button, Divider, Alert
+  Button, Divider, Alert, Chip
 } from '@mui/material'
-import { Home, GridView, Logout } from '@mui/icons-material'
+import { Home, GridView, Logout, Star, BarChart } from '@mui/icons-material'
 import { api } from '../api/client'
 import type { CameraConfig } from '../types/camera'
 import CameraCard from '../components/CameraCard'
@@ -89,6 +89,29 @@ export default function HomePage() {
               Système de surveillance de renards, pigeons, pies, chats et autres trucs très utiles.
             </Typography>
 
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                background: 'rgba(255, 193, 7, 0.08)',
+                border: '1px solid rgba(255, 193, 7, 0.3)',
+                borderRadius: 2,
+              }}
+            >
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Star sx={{ color: 'warning.main', fontSize: 20, flexShrink: 0 }} />
+                <Stack spacing={0.25} sx={{ flex: 1 }}>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography variant="body2" fontWeight="bold">Nouveauté — Les meilleures images</Typography>
+                    <Chip label="Nouveau" size="small" color="warning" variant="outlined" sx={{ fontSize: '0.65rem', height: 18 }} />
+                  </Stack>
+                  <Typography variant="caption" color="text.secondary">
+                    Marquez vos captures préférées avec l'étoile dans l'historique de chaque caméra.
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Paper>
+
             {Object.entries(groups).map(([group, cams]) => (
               <Stack key={group} spacing={2}>
                 <Stack direction="row" alignItems="center" spacing={2}>
@@ -111,6 +134,25 @@ export default function HomePage() {
             <Alert severity="info" variant="outlined">
               <Typography variant="body2">Le chargement du flux peut prendre quelques secondes</Typography>
             </Alert>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<Star />}
+              onClick={() => navigate('/favourites')}
+              sx={{ borderColor: 'warning.main', color: 'warning.main', '&:hover': { borderColor: 'warning.light', bgcolor: 'rgba(255,193,7,0.08)' } }}
+            >
+              Voir les meilleures images
+            </Button>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<BarChart />}
+              onClick={() => navigate('/stats')}
+            >
+              Statistiques
+            </Button>
           </Stack>
         </Paper>
 

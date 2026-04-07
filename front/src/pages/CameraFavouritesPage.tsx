@@ -2,44 +2,28 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Container, Stack, Avatar, Typography, Paper,
-  Button, CircularProgress, Alert, Box, IconButton, Tooltip, TextField
+  Button, CircularProgress, Alert, Box, IconButton, Tooltip
 } from '@mui/material'
-import { History, ArrowBack, Star, StarBorder, Favorite } from '@mui/icons-material'
+import { Favorite, ArrowBack, History, Delete } from '@mui/icons-material'
 import { api } from '../api/client'
-import type { CameraImage } from '../types/camera'
+import type { Favourite } from '../types/camera'
 
 const PAGE_SIZE = 20
 
-export default function CameraHistoryPage() {
+export default function CameraFavouritesPage() {
   const { name } = useParams<{ name: string }>()
   const navigate = useNavigate()
-  const [images, setImages] = useState<CameraImage[]>([])
+  const [favourites, setFavourites] = useState<Favourite[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(false)
-  const [fromDate, setFromDate] = useState('')
-  const [favouriteIds, setFavouriteIds] = useState<Record<string, number | null>>({})
 
-  const buildFavouriteIds = (imgs: CameraImage[], favs: { url: string; id: number }[]) => {
-    const ids: Record<string, number | null> = {}
-    imgs.forEach(img => {
-      const fav = favs.find(f => f.url === img.url)
-      ids[img.url] = fav ? fav.id : null
-    })
-    return ids
-  }
-
-  const load = async (date: string) => {
+  const load = async () => {
     setLoading(true)
-    setImages([])
     try {
-      const [data, { items: favs }] = await Promise.all([
-        api.getCameraHistory(name!, false, 0, PAGE_SIZE, date || undefined),
-        api.getCameraFavourites(name!, 0, 200),
-      ])
-      setImages(data)
-      setHasMore(data.length === PAGE_SIZE)
-      setFavouriteIds(buildFavouriteIds(data, favs))
+      const data = await api.getCameraFavourites(name!, 0, PAGE_SIZE)
+      setFavourites(data.items)
+      setTotal(data.total)
     } finally {
       setLoading(false)
     }
@@ -48,43 +32,31 @@ export default function CameraHistoryPage() {
   const loadMore = async () => {
     setLoadingMore(true)
     try {
-      const [data, { items: favs }] = await Promise.all([
-        api.getCameraHistory(name!, false, images.length, PAGE_SIZE, fromDate || undefined),
-        api.getCameraFavourites(name!, 0, 200),
-      ])
-      setImages(prev => [...prev, ...data])
-      setHasMore(data.length === PAGE_SIZE)
-      setFavouriteIds(prev => ({ ...prev, ...buildFavouriteIds(data, favs) }))
+      const data = await api.getCameraFavourites(name!, favourites.length, PAGE_SIZE)
+      setFavourites(prev => [...prev, ...data.items])
+      setTotal(data.total)
     } finally {
       setLoadingMore(false)
     }
   }
 
-  useEffect(() => { load(fromDate) }, [name])
+  useEffect(() => { load() }, [name])
 
-  const handleDateChange = (date: string) => {
-    setFromDate(date)
-    load(date)
+  const handleDelete = async (id: number) => {
+    await api.deleteFavourite(id)
+    setFavourites(prev => prev.filter(f => f.id !== id))
+    setTotal(prev => prev - 1)
   }
 
-  const toggleFavourite = async (img: CameraImage) => {
-    const existingId = favouriteIds[img.url]
-    if (existingId !== null && existingId !== undefined) {
-      await api.deleteFavourite(existingId)
-      setFavouriteIds(prev => ({ ...prev, [img.url]: null }))
-    } else {
-      const { id } = await api.addFavourite(name!, img.url)
-      setFavouriteIds(prev => ({ ...prev, [img.url]: id }))
-    }
-  }
+  const hasMore = favourites.length < total
 
   const navButtons = (
     <Stack direction="row" spacing={2}>
       <Button variant="outlined" startIcon={<ArrowBack />} size="small" onClick={() => navigate('/')}>
         Retour
       </Button>
-      <Button variant="outlined" startIcon={<Favorite />} size="small" onClick={() => navigate(`/camerafavourites/${name}`)}>
-        Favoris
+      <Button variant="outlined" startIcon={<History />} size="small" onClick={() => navigate(`/camerahistory/${name}`)}>
+        Historique
       </Button>
     </Stack>
   )
@@ -94,27 +66,17 @@ export default function CameraHistoryPage() {
       <Stack spacing={4} alignItems="center">
         <Stack alignItems="center" spacing={1}>
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}>
-              <History />
+            <Avatar sx={{ bgcolor: 'warning.main', width: 48, height: 48 }}>
+              <Favorite />
             </Avatar>
-            <Typography variant="h5" fontWeight="bold">Historique - {name}</Typography>
+            <Typography variant="h5" fontWeight="bold">Favoris - {name}</Typography>
           </Stack>
           <Typography variant="subtitle1" color="text.secondary">
-            Les dernières captures
+            Images sauvegardées
           </Typography>
         </Stack>
 
         {navButtons}
-
-        <TextField
-          label="À partir du"
-          type="date"
-          size="small"
-          value={fromDate}
-          onChange={e => handleDateChange(e.target.value)}
-          slotProps={{ inputLabel: { shrink: true } }}
-          sx={{ width: 200 }}
-        />
 
         <Paper
           elevation={0}
@@ -128,17 +90,17 @@ export default function CameraHistoryPage() {
           {loading && (
             <Stack alignItems="center" spacing={2} py={8}>
               <CircularProgress color="primary" />
-              <Typography variant="body2" color="text.secondary">Chargement des images...</Typography>
+              <Typography variant="body2" color="text.secondary">Chargement des favoris...</Typography>
             </Stack>
           )}
 
-          {!loading && images.length === 0 && (
+          {!loading && favourites.length === 0 && (
             <Alert severity="info" variant="outlined">
-              Aucune image trouvée pour cette caméra.
+              Aucun favori pour cette caméra.
             </Alert>
           )}
 
-          {!loading && images.length > 0 && (
+          {!loading && favourites.length > 0 && (
             <Stack spacing={3}>
               <Box
                 sx={{
@@ -152,9 +114,9 @@ export default function CameraHistoryPage() {
                   gap: 2,
                 }}
               >
-                {images.map((img) => (
+                {favourites.map((fav) => (
                   <Paper
-                    key={img.url}
+                    key={fav.id}
                     elevation={2}
                     sx={{
                       p: 2,
@@ -164,20 +126,20 @@ export default function CameraHistoryPage() {
                   >
                     <Stack spacing={1} alignItems="center">
                       <Typography variant="caption" color="text.secondary">
-                        {new Date(img.date).toLocaleString('fr-FR')} — {img.timeAgo}
+                        Ajouté le {new Date(fav.addedAt).toLocaleString('fr-FR')}
                       </Typography>
                       <Box sx={{ position: 'relative', width: '100%' }}>
                         <Box
                           component="a"
-                          href={img.url}
+                          href={fav.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           sx={{ display: 'block', width: '100%' }}
                         >
                           <Box
                             component="img"
-                            src={img.url}
-                            alt="Capture"
+                            src={fav.url}
+                            alt="Favori"
                             loading="lazy"
                             sx={{
                               width: '100%',
@@ -189,21 +151,21 @@ export default function CameraHistoryPage() {
                             }}
                           />
                         </Box>
-                        <Tooltip title={favouriteIds[img.url] ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
+                        <Tooltip title="Supprimer des favoris">
                           <IconButton
                             size="small"
-                            onClick={() => toggleFavourite(img)}
+                            onClick={() => handleDelete(fav.id)}
                             sx={{
                               position: 'absolute',
                               top: 6,
                               right: 6,
                               bgcolor: 'rgba(0,0,0,0.45)',
-                              color: favouriteIds[img.url] ? 'warning.main' : 'grey.400',
+                              color: 'error.main',
                               '&:hover': { bgcolor: 'rgba(0,0,0,0.65)' },
                               p: '4px',
                             }}
                           >
-                            {favouriteIds[img.url] ? <Star fontSize="small" /> : <StarBorder fontSize="small" />}
+                            <Delete fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       </Box>
@@ -220,7 +182,7 @@ export default function CameraHistoryPage() {
                     disabled={loadingMore}
                     startIcon={loadingMore ? <CircularProgress size={16} /> : undefined}
                   >
-                    {loadingMore ? 'Chargement...' : 'Charger 20 de plus'}
+                    {loadingMore ? 'Chargement...' : `Charger 20 de plus (${total - favourites.length} restants)`}
                   </Button>
                 </Stack>
               )}
@@ -230,9 +192,9 @@ export default function CameraHistoryPage() {
 
         <Stack spacing={2} alignItems="center">
           <Typography variant="caption" color="text.secondary">
-            {images.length} image(s) chargée(s)
+            {favourites.length} / {total} favori(s) affiché(s)
           </Typography>
-          {images.length > PAGE_SIZE && navButtons}
+          {favourites.length > PAGE_SIZE && navButtons}
         </Stack>
       </Stack>
     </Container>

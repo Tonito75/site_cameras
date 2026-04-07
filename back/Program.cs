@@ -1,5 +1,9 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using PortalCameras.Data;
 using PortalCameras.Endpoints;
 using PortalCameras.Models;
 using PortalCameras.Services;
@@ -56,12 +60,35 @@ try
     builder.Services.AddAuthorization(options =>
         options.AddPolicy("RequireAuth", policy => policy.RequireAuthenticatedUser()));
 
+    // Rate limiting — login : 5 tentatives / 10 min par IP
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.AddPolicy("login", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(10),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0
+                }));
+        options.RejectionStatusCode = 429;
+    });
+
     // YARP
     builder.Services.AddReverseProxy()
         .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+    // Cache mémoire
+    builder.Services.AddMemoryCache();
+
     // OpenAPI + Scalar
     builder.Services.AddOpenApi();
+
+    // Entity Framework
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
     // Services
     builder.Services.Configure<List<CameraConfig>>(builder.Configuration.GetSection("Cameras"));
@@ -73,7 +100,15 @@ try
 
     var app = builder.Build();
 
+    // Créer la base et la table si elles n'existent pas
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.EnsureCreated();
+    }
+
     app.UseCors();
+    app.UseRateLimiter();
     app.UseAuthentication();
     app.UseAuthorization();
 
@@ -85,6 +120,7 @@ try
     app.MapAuthEndpoints();
     app.MapCameraEndpoints();
     app.MapImageEndpoints();
+    app.MapFavouriteEndpoints();
 
     // YARP
     app.MapReverseProxy().RequireAuthorization("RequireAuth");

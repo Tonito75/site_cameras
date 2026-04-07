@@ -40,7 +40,7 @@ public static class ImageEndpoints
             };
 
             logger.LogDebug("Image — fichier servi : {FullPath}", fullPath);
-            ctx.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+            ctx.Response.Headers.CacheControl = "private, max-age=2592000, immutable";
             return Results.File(fullPath, contentType);
         }).RequireAuthorization();
     }

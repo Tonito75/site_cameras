@@ -5,6 +5,9 @@ import { api } from './api/client'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import CameraHistoryPage from './pages/CameraHistoryPage'
+import CameraFavouritesPage from './pages/CameraFavouritesPage'
+import AllFavouritesPage from './pages/AllFavouritesPage'
+import StatsPage from './pages/StatsPage'
 import AllStreamsPage from './pages/AllStreamsPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -31,6 +34,9 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<RequireAuth><HomePage /></RequireAuth>} />
         <Route path="/camerahistory/:name" element={<RequireAuth><CameraHistoryPage /></RequireAuth>} />
+        <Route path="/camerafavourites/:name" element={<RequireAuth><CameraFavouritesPage /></RequireAuth>} />
+        <Route path="/favourites" element={<RequireAuth><AllFavouritesPage /></RequireAuth>} />
+        <Route path="/stats" element={<RequireAuth><StatsPage /></RequireAuth>} />
         <Route path="/streams" element={<RequireAuth><AllStreamsPage /></RequireAuth>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

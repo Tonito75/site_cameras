@@ -15,3 +15,28 @@ export interface PingResult {
   name: string;
   isOnline: boolean;
 }
+
+export interface Favourite {
+  id: number;
+  url: string;
+  addedAt: string;
+}
+
+export interface FavouriteWithCamera extends Favourite {
+  cameraName: string;
+}
+
+export interface FavouritesPage {
+  total: number;
+  items: FavouriteWithCamera[];
+}
+
+export interface FavouritesPageCamera {
+  total: number;
+  items: Favourite[];
+}
+
+export interface DayStat {
+  date: string;
+  count: number;
+}
