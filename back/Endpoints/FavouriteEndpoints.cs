@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PortalCameras.Data;
+using PortalCameras.Helpers;
 using PortalCameras.Models;
 
 namespace PortalCameras.Endpoints;
@@ -33,7 +34,7 @@ public static class FavouriteEndpoints
             var total = await db.Favourites.CountAsync(f => f.CameraId == camera.Id);
             var favourites = await db.Favourites
                 .Where(f => f.CameraId == camera.Id)
-                .OrderByDescending(f => f.AddedAt)
+                .OrderByDescending(f => f.PhotoDate)
                 .Skip(actualSkip)
                 .Take(actualTake)
                 .Select(f => new
@@ -82,7 +83,8 @@ public static class FavouriteEndpoints
                 CameraId = camera.Id,
                 RelativePath = relativePath,
                 AbsolutePath = absolutePath,
-                AddedAt = DateTime.UtcNow
+                AddedAt = DateTime.UtcNow,
+                PhotoDate = FavouriteHelper.ParsePhotoDate(relativePath, DateTime.UtcNow)
             };
 
             db.Favourites.Add(favourite);
@@ -109,7 +111,7 @@ public static class FavouriteEndpoints
 
             var total = await db.Favourites.CountAsync();
             var favourites = await db.Favourites
-                .OrderByDescending(f => f.AddedAt)
+                .OrderByDescending(f => f.PhotoDate)
                 .Skip(actualSkip)
                 .Take(actualTake)
                 .Select(f => new
