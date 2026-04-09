@@ -100,11 +100,11 @@ try
 
     var app = builder.Build();
 
-    // Créer la base et la table si elles n'existent pas
+    // Appliquer les migrations automatiquement au démarrage
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        db.Database.EnsureCreated();
+        db.Database.Migrate();
     }
 
     app.UseCors();
