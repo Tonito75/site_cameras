@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Container, Stack, Avatar, Typography, Paper,
-  Button, Divider, Alert, Chip
+  Button, Divider, Alert
 } from '@mui/material'
 import { Home, GridView, Logout, Star, BarChart } from '@mui/icons-material'
 import { api } from '../api/client'
@@ -28,7 +28,6 @@ export default function HomePage() {
       setPingLoading(loading)
       setPingResults(results)
 
-      // Ping chaque caméra en parallèle
       data.forEach(camera => {
         api.pingCamera(camera.name).then(r => {
           setPingResults(prev => ({ ...prev, [camera.name]: r.isOnline }))
@@ -65,15 +64,6 @@ export default function HomePage() {
           <Typography variant="subtitle1" color="text.secondary">Les caméras</Typography>
         </Stack>
 
-        <Stack direction="row" spacing={2}>
-          <Button variant="outlined" startIcon={<GridView />} size="small" onClick={() => navigate('/streams')}>
-            Tous les flux
-          </Button>
-          <Button variant="outlined" color="error" startIcon={<Logout />} size="small" onClick={handleLogout}>
-            Déconnexion
-          </Button>
-        </Stack>
-
         <Paper
           elevation={0}
           sx={{
@@ -88,29 +78,6 @@ export default function HomePage() {
             <Typography variant="body2" color="text.secondary" align="center">
               Système de surveillance de renards, pigeons, pies, chats et autres trucs très utiles.
             </Typography>
-
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                background: 'rgba(255, 193, 7, 0.08)',
-                border: '1px solid rgba(255, 193, 7, 0.3)',
-                borderRadius: 2,
-              }}
-            >
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <Star sx={{ color: 'warning.main', fontSize: 20, flexShrink: 0 }} />
-                <Stack spacing={0.25} sx={{ flex: 1 }}>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography variant="body2" fontWeight="bold">Nouveauté — Les meilleures images</Typography>
-                    <Chip label="Nouveau" size="small" color="warning" variant="outlined" sx={{ fontSize: '0.65rem', height: 18 }} />
-                  </Stack>
-                  <Typography variant="caption" color="text.secondary">
-                    Marquez vos captures préférées avec l'étoile dans l'historique de chaque caméra.
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Paper>
 
             {Object.entries(groups).map(([group, cams]) => (
               <Stack key={group} spacing={2}>
@@ -135,6 +102,10 @@ export default function HomePage() {
               <Typography variant="body2">Le chargement du flux peut prendre quelques secondes</Typography>
             </Alert>
 
+            <Button variant="outlined" fullWidth startIcon={<GridView />} onClick={() => navigate('/streams')}>
+              Tous les flux
+            </Button>
+
             <Button
               variant="outlined"
               fullWidth
@@ -145,13 +116,12 @@ export default function HomePage() {
               Voir les meilleures images
             </Button>
 
-            <Button
-              variant="outlined"
-              fullWidth
-              startIcon={<BarChart />}
-              onClick={() => navigate('/stats')}
-            >
+            <Button variant="outlined" fullWidth startIcon={<BarChart />} onClick={() => navigate('/stats')}>
               Statistiques
+            </Button>
+
+            <Button variant="outlined" fullWidth color="error" startIcon={<Logout />} onClick={handleLogout}>
+              Déconnexion
             </Button>
           </Stack>
         </Paper>
